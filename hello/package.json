@@ -1,0 +1,13 @@
+{
+  "name": "@eightycolumns/hello",
+  "version": "1.0.0",
+  "author": {
+    "name": "Drew Keller",
+    "email": "drew@eightycolumns.com",
+    "url": "http://eightycolumns.com"
+  },
+  "main": "hello.js",
+  "dependencies": {
+    "express": "^4.15.4"
+  }
+}

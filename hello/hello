@@ -1,0 +1,81 @@
+#!/bin/bash
+
+main() {
+  validate_args "$@"
+
+  local -r app_name=$(basename "$0")
+  local -r command=$1
+
+  if [ "${command}" == 'start' ]; then
+    start_node_app "${app_name}"
+  elif [ "${command}" == 'stop' ]; then
+    stop_node_app "${app_name}"
+  else
+    fail "$(printf 'No such command "%s".\n' "${command}")"
+  fi
+}
+
+validate_args() {
+  local -ir n_args=$#
+  local -r program=$(basename "$0")
+
+  if ((n_args != 1)); then
+    usage "${program} <command>"
+  fi
+}
+
+usage() {
+  local -r message=$1
+  echo "Usage: ${message}" 1>&2 && exit 64
+}
+
+start_node_app() {
+  local -r app_name=$1
+
+  local -r URL=http://localhost:3000
+  local -r image="eightycolumns/${app_name}:latest"
+
+  if ! image_exists "${image}"; then
+    fail "$(printf 'No such node app "%s".\n' "${app_name}")"
+  fi
+
+  if node_app_running "${app_name}"; then
+    printf 'Node app "%s" already running. See %s.\n' "${app_name}" "${URL}"
+  else
+    printf 'Starting node app "%s"... ' "${app_name}"
+
+    docker run \
+      --detach \
+      --name "${app_name}" \
+      --publish 3000:3000 \
+      "${image}" > /dev/null && printf 'Node app started. See %s.\n' "${URL}"
+  fi
+}
+
+image_exists() {
+  local -r image=$1
+  docker image inspect "${image}" &> /dev/null
+}
+
+fail() {
+  local -r message=$1
+  echo "Error: ${message}" 1>&2 && exit 1
+}
+
+node_app_running() {
+  local -r app_name=$1
+  docker ps -af name="${app_name}" | awk '{print $NF}' | grep -qw "${app_name}"
+}
+
+stop_node_app() {
+  local -r app_name=$1
+
+  if node_app_running "${app_name}"; then
+    printf 'Stopping node app "%s"... ' "${app_name}"
+    docker rm -fv "${app_name}" > /dev/null && printf 'Node app stopped.\n'
+  else
+    printf 'Node app "%s" not running.\n' "${app_name}"
+  fi
+}
+
+[ "${BASH_SOURCE[0]}" == "$0" ] && main "$@"
