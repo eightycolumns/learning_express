@@ -15,4 +15,4 @@ RUN npm install
 COPY "${PWD}" "${PWD}"
 
 USER node
-ENTRYPOINT ["node", "hello.js"]
+ENTRYPOINT ["node", "app.js"]

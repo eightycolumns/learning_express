@@ -6,7 +6,7 @@
     "email": "drew@eightycolumns.com",
     "url": "http://eightycolumns.com"
   },
-  "main": "hello.js",
+  "main": "app.js",
   "dependencies": {
     "express": "^4.15.4"
   }
